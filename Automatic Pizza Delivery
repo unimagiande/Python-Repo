@@ -1,0 +1,43 @@
+
+#An Automatic Pizza order program on Python
+
+#salutation statement to client
+print("Welcome to Python Pizza Deliveries")
+
+#input syntax to collect clients pizza order
+#where small pizza = $15, medium pizza = $20 and large pizza = $25
+size=input("\nPlease What Size of pizza do you want?\nsmall=$15\nmedium=$20\nlarge=$25\n\n")
+
+bill=0
+if size.lower()=="small":
+  bill+=15
+elif size.lower()=="medium":
+ bill+=20
+elif size.lower()=="large":
+  bill+=25
+else:
+ print("\nPlease Choose your pizza size from the above sizes only")
+
+#input syntax to collect clients pepperoni extras
+print("\npepperoni available: pepperoni_for_small_pizza=$2\npepperoni_for_medium_or_large_pizza=$3\nno_pepperoni=$0")
+pepperoni=input("\nPlease what pepperoni do you want?, pepperoni_for_small_pizza, pepperoni_for_medium_or_large_pizza, no_pepperoni \n\n")
+if pepperoni.lower()=="pepperoni_for_small_pizza":
+  bill+=2
+elif pepperoni.lower() == "pepperoni_for_medium_or_large_pizza":
+  bill+=3
+elif pepperoni.lower() == "no_pepperoni":
+  bill+=0
+else:
+  print("Choose pepperoni from above mentioned list only\n")
+
+#input syntax to collect clients cheese extras
+print("\ncheese available: cheese_for_any_size_pizza=$1\nno_cheese=$0")
+cheese=input("\nDo you want cheese?, cheese_for_any_size_pizza, no_cheese \n\n")
+if cheese.lower()=="cheese_for_any_size_pizza":
+  bill+=1
+elif cheese.lower()=="no_cheese":
+  bill+=0
+else:
+  print("Choose cheese from above mentioned list only\n")
+
+print("\nYour final bill is $" ,bill)
