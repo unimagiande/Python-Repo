@@ -1,0 +1,41 @@
+#Account; class and it's attributes
+class Account:
+    def __init__(self, account_number: str, account_balance: float, account_holder: str):
+        self.a = account_number
+        self.b = account_balance
+        self.c = account_holder
+
+#Defining the deposit method
+    def deposit(self, amount: float):
+        self.b += amount
+        print(f" Deposited ${amount: .2f}. New balance is $ {self.b:.2f}.")
+
+#Defining the withdraw method
+    def withdraw (self, amount: float):
+        if self.b >= amount:
+            self.b -= amount
+            print(f" Withdrew ${amount:.2f}. New balance is ${self.b:.2f}.")
+        else:
+            print(f" Insuffient funds, Please deposit additional funds, your current balance is $ {self.b:.2f}.")
+
+#Defining the check balance method
+    def check_balance(self):
+        return self.b
+
+
+#Creating an account instance to test the class "Account"
+if __name__ == "__main__":
+    my_account = Account("0123456789", 90000.00, "Unim Agiande")
+
+#Depositing money
+    my_account.deposit(1000.00)
+
+#Withdrawing money
+    my_account.withdraw(500.00)
+
+#Checking account balance
+    print(f" Current balance is ${my_account.check_balance():.2f}.")
+
+
+#Creating an instance to test the insuffient fund loop
+my_account.withdraw(95550.00)
