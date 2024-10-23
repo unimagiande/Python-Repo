@@ -1,0 +1,63 @@
+#Calculator program that allows the user to perform mathematical operations on two numbers using basic functions and a dictionary to store the operations. The program has the ability to continue calculations with the result of previous calculations.
+
+#Welcome note
+print("Welcome to calculator program")
+
+# Four basic mathematical functions
+def add(a,b):
+    return(a+b)
+    
+def subtract(a,b):
+    return(a-b)
+    
+def multiply(a,b):
+    return(a*b)
+    
+def divide(a,b):
+    return(a/b) if b != 0 else "Error: Division by zero"
+
+# A dictionary 'operations' that assigns the functions to their corresponding operation symbols.
+operations = {
+    "+": add,
+    "-": subtract,
+    "*": multiply,
+    "/": divide
+}
+
+# A function 'calculator' that prompts the user to input the two numbers
+def calculator():
+    num1 = float(input("Enter the first number: "))  # Prompt the user for the first number
+    
+    # Print the available operations
+    for symbol in operations:
+        print(symbol)
+    
+    should_continue = True
+    
+    while should_continue:
+        # Prompt the user to select an operation symbol
+        operation_symbol = input("Please pick an operation from the list above: ")
+        
+        # Prompt the user for the second number
+        num2 = float(input("Enter the next number: "))
+        
+        # Retrieve the corresponding function from the dictionary
+        calculation_function = operations[operation_symbol]
+        
+        # Perform the calculation
+        answer = calculation_function(num1, num2)
+        
+        # Print the result of the calculation
+        print(f"{num1} {operation_symbol} {num2} = {answer}")
+        
+        # Ask the user if they want to continue with the current result
+        next_step = input(f"Type 'y' to continue calculating with {answer}, or 'n' to start a new calculation: ").lower()
+        
+        if next_step == 'y':
+            num1 = answer
+        else:
+            should_continue = False
+            calculator()  # Start a new calculation
+
+# Start the calculator program
+calculator()
