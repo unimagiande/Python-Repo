@@ -1,0 +1,60 @@
+
+#Import numpy 
+
+import numpy as np
+
+grades = np.array([85, 90, 88, 92, 95, 80, 75, 98, 89, 83])
+#Calculate mean, median and standard deviation of the grades
+
+#Mean
+mean = np.mean(grades)
+
+#Median
+median = np.median(grades)
+
+#Standard deviation
+std_dev = round(np.std(grades), 2) #rounds the result to 2 decimal places
+#Calculate maximum of the grades
+
+max_grades = np.max(grades)
+
+#Calculate minimum of the grades
+mini_grades = np.min(grades)
+#Sort grades in ascending order
+
+sorted_grades = np.sort(grades)
+#Find the index of the highest grade in the array
+
+index_max = np.argmax(grades)
+#Count the number of students who scored above 90
+
+abv_90 = np.sum(grades > 90)
+#Calculate the percentage of students who scored above 90
+
+above_90 = 90 #Assigning the above score to a variable
+
+per_90 = (np.sum(grades > above_90) / len(grades)) * 100
+#Calculate the percentage of students who scored below 75
+
+below_75 = 75 #Assigning the below score to a variable
+
+per_75 = (np.sum(grades < below_75) / len(grades)) * 100
+#Extract all the grades above 90 and put them in a new array called "high_performers"
+
+high_performers = grades[grades > 90]
+#Create a new array called "passing_grades" that contains all the grades above 75
+
+passing_grades = grades[grades > 75]
+passing_grades1 = np.sort(passing_grades) # Sorts passing grades in ascending order
+# Print Results
+
+print("grades:", grades) # Working Grade array
+print(f' \nmean {mean}, \nmedian {median}, \nstd_dev {std_dev}') # Returns the result for mean, median and standard deviation
+print(f' \nmax grades {max_grades}, \nmin grades {mini_grades}') # Returns the result for maximum and minimum gradeprint(f' sorted sales in ascending order {sorted_sales}')
+print("Sorted grades in ascending order:", sorted_grades) # Returns sorted grades in ascending order
+print("Index of the highest grade:", index_max) #Returns Index of highest grades
+print("Total number of students who scored above 90:", abv_90) # Returns total number of students who scored above 90
+print("Percentage of students who scored above 90:", per_90) # Returns the percentage of students who scored above 90
+print("Percentage of students who scored below 75:", per_75) # Returns the percentage of students who scored below 75
+print("Array of Grades above 90:", high_performers) # Returns the Extracts of all the grades above 90 and put them in a new array called "high_performers"
+print("Array of grade above 75:", passing_grades1) # Returns a new array called "passing_grades" that contains all the grades above 75
