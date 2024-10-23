@@ -1,0 +1,50 @@
+#Import libraries
+
+import csv
+import numpy as np
+
+# Open the CSV file and read data within the 'with' block
+with open('Loan_prediction_dataset.csv', 'r') as file:
+    csv_reader = csv.reader(file)
+    
+    # Skip the header row
+    header = next(csv_reader)
+    
+    # Extract the total loan amounts in the 9th column, index 8)
+    loan_amounts = []
+    for row in csv_reader:
+        try:
+            # Attempt to convert the value to float
+            loan_amount = float(row[8])
+            loan_amounts.append(loan_amount)
+        except ValueError:
+            # Skip this row if conversion fails
+            print(f"Skipping row due to ValueError: {row}")
+file.close()
+
+
+#loan amounts array
+loan_amounts_array = np.array(loan_amounts)
+loan_amounts_array
+
+
+#To calculate mean
+
+mean_loan = round(np.mean(loan_amounts_array), 2) #Rounds the result do two decimal places
+
+#To calculate median
+
+median_loan = round(np.median(loan_amounts_array), 2) #Rounds the result do two decimal places
+
+#To calculate standard deviation
+
+std_loan = round(np.std(loan_amounts_array), 2) #Rounds the result do two decimal places
+
+
+# Print the results
+
+print(f"Mean Loan Amount: {mean_loan}")
+print(f"Median Loan Amount: {median_loan}")
+print(f"Standard Deviation of Loan Amounts: {std_loan}")
+
+
