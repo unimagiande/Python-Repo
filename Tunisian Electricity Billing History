@@ -1,0 +1,63 @@
+#import necessary libraries
+import pandas as pd
+
+#import the dataset
+dataset = pd.read_csv('STEG_BILLING_HISTORY.csv')
+
+#Display the first 10 rows of the data set and store in a variable client_0_bills
+
+client_0_bills = dataset.head(10)
+client_0_bills
+
+#Data type of client_0_bills
+print(f' The data type of client_0_bills: {type(client_0_bills)}')
+
+#Display the general information of the dataset
+dataset.info()
+
+#How many rows and columns do we have in this dataset ?
+
+rows, cols = dataset.shape
+print(f'Number of rows: {rows}, Number of columns: {cols}')
+
+#How many categorical features are present in the dataset ?
+categorical_columns = dataset.select_dtypes(include=['object']).columns
+num_categorical_features = len(categorical_columns)
+print(f"Number of categorical features: {num_categorical_features}")
+
+#How much memory space does the dataset consume ?
+memory_usage = dataset.memory_usage(deep=True).sum() / (1024 ** 2)  # Convert to MB
+print(f"Memory usage: {memory_usage:.2f} MB") # 2f Approximates decimal places to 2
+
+#Inspection for missing values
+missing_values = dataset.isnull().sum()
+missing_values
+
+#Strategy to handle missing values, and tell us why you had made that choice.
+dataset_clean = dataset.dropna()
+print('Dropped missing values.') # Why i chose to dro, the missing data is not critical and dropping the rows won't significantly affect the dataset size, it's often easiest to drop the rows. However, this depends on the context.
+
+#Descriptive analysis on numeic features
+descriptive = dataset_clean.describe()
+descriptive
+
+#Select the bills records for the client with an id ='train_Client_0', using 2 methods.
+# Method 1: Query method
+client_0_records1 = dataset.query("client_id == 'train_Client_0'")
+client_0_records1
+
+##Select the bills records for the client with an id ='train_Client_0', using 2 methods.
+# Method 2: Boolean indexing
+client_0_records2 = dataset[dataset['client_id'] == 'train_Client_0']
+client_0_records2
+
+#Transform the 'counter_type' feature to a numeric variable using the encoder of your choice.
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+dataset['counter_type_numeric'] = le.fit_transform(dataset['counter_type'])
+print(dataset[['counter_type', 'counter_type_numeric']].head())
+
+#Delete the 'counter_statue' feature from the Dataframe
+dataset_clean = dataset.drop(columns=['counter_statue'])
+dataset_clean.columns
+
