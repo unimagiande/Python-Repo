@@ -1,0 +1,255 @@
+import warnings
+warnings.filterwarnings("ignore")
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import plotly.express as px
+import plotly.graph_objects as go
+
+# Load the dataset into a DataFrame
+df = pd.read_csv('Africa_climate_change.csv')
+
+# Display the first few rows of the dataset to confirm it has loaded correctly
+df.head()
+
+# Brief description of the dataset
+df.info()
+
+# A summary of all the columns in the df
+df.describe(include = 'all').T
+
+df[df["COUNTRY"] == 'Tunisia'].describe(include = 'all').T
+
+# Display 30 random rows
+df.sample(n = 30)
+
+# Convert DATE column to datetime format
+df['DATE'] = pd.to_datetime(df['DATE'], format='%Y%m%d %H%M%S', errors = 'coerce')
+
+df.head()
+
+df['COUNTRY'].unique()
+
+# Group by country and calculate summary statistics for TAVG
+country_tavg_stats = df.groupby('COUNTRY')['TAVG'].agg(['mean', 'std'])
+
+# Display the summary statistics
+country_tavg_stats
+
+# Group by country and calculate summary statistics for TMAX
+country_tmax_stats = df.groupby('COUNTRY')['TMAX'].agg(['mean', 'std'])
+
+# Display the summary statistics
+country_tmax_stats
+
+# Group by country and calculate summary statistics for TMIN
+country_tmin_stats = df.groupby('COUNTRY')['TMIN'].agg(['mean', 'std'])
+
+# Display the summary statistics
+country_tmin_stats
+
+# We can group the dataset by country and then fill in the missing values for temperature columns using the mean for that specific country, since temperatures can vary significantly by region
+# Fill missing temperature values with the mean of each country
+df['TAVG'] = df.groupby('COUNTRY')['TAVG'].transform(lambda x: x.fillna(x.mean()))
+df['TMAX'] = df.groupby('COUNTRY')['TMAX'].transform(lambda x: x.fillna(x.mean()))
+df['TMIN'] = df.groupby('COUNTRY')['TMIN'].transform(lambda x: x.fillna(x.mean()))
+
+# Check if the missing values are filled
+print(df.isnull().sum())
+
+# Before we replace the missing values in PRCP let's see if there're relationships with the other columns
+# To check the correlation between temperature and precipitation
+
+correlation_tavg_prcp = df[['TAVG', 'PRCP']].corr().iloc[0, 1]
+print(f"Correlation between TAVG and PRCP: {correlation_tavg_prcp}")
+
+correlation_tmax_prcp = df[['TMAX', 'PRCP']].corr().iloc[0, 1]
+print(f"Correlation between TMAX and PRCP: {correlation_tmax_prcp}")
+
+correlation_tmin_prcp = df[['TMIN', 'PRCP']].corr().iloc[0, 1]
+print(f"Correlation between TMIN and PRCP: {correlation_tmin_prcp}")
+
+# Group by country and calculate correlation between PRCP and TAVG
+country_prcp_tavg_corrs = df.groupby('COUNTRY').apply(lambda x: x['PRCP'].corr(x['TAVG'])).reset_index(name='PRCP_TAVG_Corr')
+
+# Group by country and calculate correlation between PRCP and TMIN
+country_prcp_tmin_corrs = df.groupby('COUNTRY').apply(lambda x: x['PRCP'].corr(x['TMIN'])).reset_index(name='PRCP_TMIN_Corr')
+
+# Group by country and calculate correlation between PRCP and TMAX
+country_prcp_tmax_corrs = df.groupby('COUNTRY').apply(lambda x: x['PRCP'].corr(x['TMAX'])).reset_index(name='PRCP_TMAX_Corr')
+
+# Merge the correlation results into a single DataFrame
+country_corrs = pd.merge(country_prcp_tavg_corrs, country_prcp_tmin_corrs, on='COUNTRY')
+country_corrs = pd.merge(country_corrs, country_prcp_tmax_corrs, on='COUNTRY')
+
+
+country_corrs
+
+# Group by country and calculate summary statistics for PRCP
+country_prcp_stats = df.groupby('COUNTRY')['PRCP'].agg(['mean', 'median', 'min', 'max', 'std', 'count'])
+
+# Display the summary statistics
+country_prcp_stats
+
+# Replace missing values with the median precipitation for each country
+# Calculate the median precipitation for each country
+median_prcp_by_country = df.groupby('COUNTRY')['PRCP'].median()
+
+# Define a function to fill missing values with the country-specific median
+def fill_missing_prcp(row):
+    if pd.isna(row['PRCP']):
+        return median_prcp_by_country[row['COUNTRY']]
+    else:
+        return row['PRCP']
+
+# Apply the function to fill missing values
+df['PRCP'] = df.apply(fill_missing_prcp, axis=1)
+
+# Verify the changes
+df.head()
+
+# Extract year, month, and day
+df['Year'] = df['DATE'].dt.year
+#df['Month'] = df['DATE'].dt.month
+# Format the month names as "Jan", "Feb", etc.
+df['Month'] = df['DATE'].dt.strftime('%b')
+df['Day'] = df['DATE'].dt.day
+
+df.head()
+
+# Visualizations
+# Create a line chart to display the average temperature fluctuations in Tunisia and Cameroon.
+
+# Filter the data for Tunisia and Cameroon
+df_filtered = df[df['COUNTRY'].isin(['Tunisia', 'Cameroon'])]
+
+# Group by 'YEAR' and 'COUNTRY', then calculate the average temperature
+df_yearly = df_filtered.groupby(['Year', 'COUNTRY'])['TAVG'].mean().reset_index()
+
+df_yearly
+
+# Filter the data for Tunisia and Cameroon
+df_filtered = df[df['COUNTRY'].isin(['Tunisia', 'Cameroon'])]
+
+# Group by 'YEAR' and 'COUNTRY', then calculate the average temperature
+df_yearly = df_filtered.groupby(['Year', 'COUNTRY'])['TAVG'].mean().reset_index()
+
+# Create the line chart
+fig = px.line(df_yearly, x='Year', y='TAVG', color='COUNTRY',
+              title='Average Yearly Temperature Fluctuations in Tunisia and Cameroon',
+              labels={'Year': 'Year', 'TAVG': 'Average Temperature (°F)'})
+
+fig.update_layout(legend_title_text='Country')
+fig.show()
+
+# By month
+# Group by 'Month' and 'COUNTRY', then calculate the average temperature
+df_monthly = df_filtered.groupby(['Month', 'COUNTRY'])['TAVG'].mean().reset_index()
+
+# Create the line chart
+fig = px.line(df_monthly, x='Month', y='TAVG', color='COUNTRY',
+              title='Average Monthly Temperature Fluctuations in Tunisia and Cameroon',
+              labels={'Month': 'Month', 'TAVG': 'Average Temperature (°F)'})
+
+fig.update_layout(legend_title_text='Country')
+fig.show()
+
+# Define the correct order for months
+month_order = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+# Convert 'Month' to a categorical type with the specified order
+df_filtered['Month'] = pd.Categorical(df_filtered['Month'], categories=month_order, ordered=True)
+
+# Group by 'Month' and 'COUNTRY', then calculate the average temperature
+df_monthly = df_filtered.groupby(['Month', 'COUNTRY'])['TAVG'].mean().reset_index()
+
+# Create the line chart
+fig = px.line(df_monthly, x='Month', y='TAVG', color='COUNTRY',
+              title='Average Monthly Temperature Fluctuations in Tunisia and Cameroon',
+              labels={'Month': 'Month', 'TAVG': 'Average Temperature (°F)'})
+
+fig.update_layout(legend_title_text='Country')
+fig.show()
+
+# Filter the data between 1980 and 2005
+df_filtered_2 = df_filtered[(df_filtered['Year'] >= 1980) & (df_filtered['Year'] <= 2005)]
+
+# Group by 'Year' and 'COUNTRY', then calculate the average temperature
+df_yearly = df_filtered_2.groupby(['Year', 'COUNTRY'])['TAVG'].mean().reset_index()
+
+# Create the line chart
+fig = px.line(df_yearly, x='Year', y='TAVG', color='COUNTRY',
+              title='Average Yearly Temperature Fluctuations in Tunisia and Cameroon (1980-2005)',
+              labels={'Year': 'Year', 'TAVG': 'Average Temperature (°F)'})
+
+# Customize x-axis and y-axis labels
+fig.update_layout(
+    xaxis_title='Year',
+    yaxis_title='Average Temperature (°F)',
+    xaxis=dict(
+        tickmode='array'
+    )
+)
+
+# Temperature Distribution in Senegal (1980-2000 vs 2000-2023)
+
+# Filter the data for Senegal
+senegal_df = df[df['COUNTRY'] == 'Senegal']
+
+# Extract the year from 'DATE'
+senegal_df['Year'] = senegal_df['DATE'].dt.year
+
+# Split the data into two periods: 1980-2000 and 2000-2023
+senegal_1980_2000 = senegal_df[(senegal_df['Year'] >= 1980) & (senegal_df['Year'] <= 2000)]
+senegal_2000_2023 = senegal_df[(senegal_df['Year'] > 2000) & (senegal_df['Year'] <= 2023)]
+
+
+# Create histograms
+hist_1980_2000 = go.Histogram(
+    x=senegal_1980_2000['TAVG'],
+    opacity=0.6,
+    name='1980-2000',
+    marker=dict(color='blue')
+)
+
+hist_2000_2023 = go.Histogram(
+    x=senegal_2000_2023['TAVG'],
+    opacity=0.6,
+    name='2000-2023',
+    marker=dict(color='red')
+)
+# Combine histograms in one figure
+fig = go.Figure(data=[hist_1980_2000, hist_2000_2023])
+
+# Update layout for better visibility
+fig.update_layout(
+    barmode='overlay',
+    title='Temperature Distribution in Senegal (1980-2000 vs 2000-2023)',
+    xaxis_title='Average Temperature (°F)',
+    yaxis_title='Frequency',
+    legend_title_text='Period',
+    legend=dict(
+        x=0.05, y=0.95,
+        bgcolor='rgba(255, 255, 255, 0.5)'
+    )
+)
+
+# Show the figure
+fig.show()
+
+# Group by country and calculate the average temperature
+country_avg_temp = df.groupby('COUNTRY')['TAVG'].mean().reset_index()
+
+# Create a bar chart
+fig = px.bar(country_avg_temp, x='COUNTRY', y='TAVG', 
+             title='Average Temperature per Country',
+             labels={'TAVG': 'Average Temperature (°F)', 'COUNTRY': 'Country'})
+
+# Customize the layout for better clarity
+fig.update_layout(xaxis_title='Country', yaxis_title='Average Temperature (°F)', 
+                  xaxis_tickangle=-45, 
+                  title_font_size=20)
+
+# Show the figure
+fig.show()
